@@ -4,7 +4,8 @@ for memory have to use xilinx block ram with blk_mem_gen_v7_3_0 name
 
 startup folder contain modified gcc files copy them to zpugcc toolchain/gcc/libgloss/zpu
 then complie gcc
-this modification is reguired if you want use priority interrupt and POPINT instruction
+this modification is reguired if you want use priority interrupt and POPINT instruction or comment them out in zpupkg.v if don't vant to use.
+in pic_example folder there is a priority interupt example
 
 	-zpupkg.v (definitions for soc)
 
