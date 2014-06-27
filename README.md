@@ -22,6 +22,6 @@ this modification is reguired if you want use priority interrupt and POPINT inst
 		
 zpu_tb.v is an easy testbanch to drive the soc in it have to implement trace 
 
-zpuromcoegen is generate a .coe file from .bin for xilinx block ram generator
+zpuromgencoe is generate a .coe file from .bin for xilinx block ram generator
 usage
-zpuromcoegen <input file name>.bin <output file name>.coe
+zpuromgencoe <input file name>.bin <output file name>.coe
