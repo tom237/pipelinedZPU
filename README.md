@@ -7,7 +7,7 @@ then complie gcc
 this modification is reguired if you want use priority interrupt and POPINT instruction or comment them out in zpupkg.v if don't vant to use.
 in pic_example folder there is a priority interupt example
 
-	-zpupkg.v (definitions for soc)
+	-zpupkg.v (definitions for soc and core)
 
 	-zpu_control (use this as top level when implement)
 		-zpu_core.v (real toplevel)
