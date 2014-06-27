@@ -8,17 +8,17 @@ this modification is reguired if you want use priority interrupt and POPINT inst
 
 	-zpupkg.v (definitions for soc)
 
--zpu_control (use this as top level when implement)
-	-zpu_core.v
-		-wb_shared_bus.v
-		-int_basic_perif.v
-			-debug_serial.v
-		-cpu_core.v
-			-execution.v
-			-regfetch.v
-			-decode.v
-			-steck.v
-		-block ram with enable pins
+	-zpu_control (use this as top level when implement)
+		-zpu_core.v
+			-wb_shared_bus.v
+			-int_basic_perif.v
+				-debug_serial.v
+			-cpu_core.v
+				-execution.v
+				-regfetch.v
+				-decode.v
+				-steck.v
+			-block ram with enable pins
 		
 zpu_tb.v is an easy testbanch to drive the soc in it have to implement trace 
 
