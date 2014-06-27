@@ -26,3 +26,9 @@ zpu_tb.v is an easy testbanch to drive the soc in it have to implement trace
 zpuromgencoe is generate a .coe file from .bin for xilinx block ram generator
 usage
 zpuromgencoe <input file name>.bin <output file name>.coe
+
+	TODO list:
+		-trace generator
+		-debug core
+		-rom generator
+		-wisbone test
