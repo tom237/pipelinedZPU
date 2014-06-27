@@ -6,6 +6,8 @@ startup folder contain modified gcc files copy them to zpugcc toolchain/gcc/libg
 then complie gcc
 this modification is reguired if you want use priority interrupt and POPINT instruction
 
+	-zpupkg.v (definitions for soc)
+
 -zpu_control (use this as top level when implement)
 	-zpu_core.v
 		-wb_shared_bus.v
