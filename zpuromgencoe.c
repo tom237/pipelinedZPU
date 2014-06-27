@@ -1,15 +1,3 @@
-// zpuromgen.c
-//
-// Program to turn a binary file into a VHDL lookup table.
-//   by Adam Pierce
-//   29-Feb-2008
-//
-// This software is free to use by anyone for any purpose.
-//
-// To build:
-//
-// gcc -Wall zpuromgen.c -o zpuromgen
-
 #include <unistd.h>
 #include <stdio.h>
 #include <limits.h>
