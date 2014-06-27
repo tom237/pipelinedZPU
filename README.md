@@ -9,7 +9,7 @@ this modification is reguired if you want use priority interrupt and POPINT inst
 	-zpupkg.v (definitions for soc)
 
 	-zpu_control (use this as top level when implement)
-		-zpu_core.v
+		-zpu_core.v (real toplevel)
 			-wb_shared_bus.v
 			-int_basic_perif.v
 				-debug_serial.v
