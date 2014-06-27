@@ -33,3 +33,4 @@ zpuromgencoe <input file name>.bin <output file name>.coe
 		-rom generator
 		-wisbone test
 		-SRAM ctrl and caches
+		-write dokumentation

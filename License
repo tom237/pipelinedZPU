@@ -1,0 +1,7 @@
+The project includes HDL, GCC toolchain and eCos HAL.
+
+The ZPU has a BSD license for the HDL and GPL for the rest. This allows users to implement any version of the ZPU they want in commercial products, but if improvements are done to the architecture as such, then they need to be contributed back.
+
+Per Jan 1. 2008, Zylin has the Copyright for the ZPU, i.e. Zylin is free to decide that the ZPU shall have a BSD license for HDL + GPL for the rest.
+
+
