@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 		printf("unable to output open file");
 		return 3;
 	}
-	linenumber = 0;
+	linenumber = 1;
 	while(1)
 	{
 		linenumber=linenumber+4;
