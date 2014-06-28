@@ -28,7 +28,7 @@ usage
 zpuromgencoe input_file_name.bin output_file_name.coe
 
 	TODO list:
-		-modification on interrupt controller flegs
+		-test on interrupt controller
 		-trace generator
 		-debug core
 		-rom generator

@@ -73,7 +73,6 @@ module int_basic_perif(
     reg[8:0] uarttx;
     reg[8:0] uartrx;
     reg[63:0] countersmp;
-    reg neggie;
     reg[1:0] uratintena;
     reg[1:0] uartintfleg;
     reg systimerintenable;
@@ -85,6 +84,7 @@ module int_basic_perif(
     reg intinhighreg;
     reg intinlowreg;
     reg intinhigh;
+    reg intinlow;
 
     `ifdef enable_uart
         debug_serial //#(
@@ -123,9 +123,9 @@ module int_basic_perif(
     assign interuptsaray[interrupt_number + 2] = (uratintena[`uarttxinte] == 1) ? uartintfleg[`uarttxintf] : 1'b0;
 
     `ifdef enable_POPINT
-        assign cpu_irq = (neggie == 0) ? intreq : 1'b0;
+        assign cpu_irq = (intinhigh == 0) ? intreq : 1'b0;
     `else
-        assign cpu_irq = ((neggie == 0) && (irqcoming == 1)) ? interuptsaray[itstate] : 1'b0;
+        assign cpu_irq = ((intinhigh == 0) && (irqcoming == 1)) ? interuptsaray[itstate] : 1'b0;
     `endif
 
     assign wb_stall = 1'b0;
@@ -153,9 +153,9 @@ module int_basic_perif(
             uartrx <= 0;
             countersmp <= 0;
             `ifdef enable_itc
-                neggie <= 0;
+                intinhigh <= 0;
             `else
-                neggie <= 1;
+                intinhigh <= 1;
             `endif
             uratintena <= 0;
             uartintfleg <= 0;
@@ -167,14 +167,16 @@ module int_basic_perif(
             intinhighreg <= 0;
             intinlowreg <= 0;
             intinhigh <=  0;
+            intinlow <=  0;
         end
         else begin
             // itc
             `ifdef enable_itc
                 if(irq_ack == 1)begin
                     intreq <= 0;
-                    `ifdef enable_priority_int
-                        intinhigh <= intinhighreg;
+                    intinhigh <= intinhighreg;
+                    `ifdef enable_priority_int                        
+                        intinlow <= intinlowreg;
                     `endif
                 end
                 `ifdef enable_POPINT
@@ -201,9 +203,11 @@ module int_basic_perif(
                         if(exitint == 1)begin
                             if(intinhigh == 1)begin
                                 intinhighreg <= 0;
+                                intinhigh <= 0;
                             end
                             else begin
                                 intinlowreg <= 0;
+                                intinlow <= 0; 
                             end
                         end
                     `else                                   
@@ -219,15 +223,18 @@ module int_basic_perif(
                     
                         if(exitint == 1)begin
                             intinhighreg <= 0;
+                            intinhigh <= 0;
                         end
                     `endif    
                 `else
                     if((irq_ack == 0) && (intreq == 0))begin
                         irqcoming <= 0;
+                        intinhighreg <= 0;
                         for(i=0;i<=interrupt_number+2;i=i+1)begin
                             if(interuptsaray[i] == 1)begin
                                 itstate <= i;
                                 irqcoming <= 1;
+                                intinhighreg <= 1;
                                 intreq <= 1;                        
                                 irq_adr <= `interruptadr;
                             end
@@ -236,7 +243,7 @@ module int_basic_perif(
                     end
                 `endif
             `else
-                neggie <= 1;
+                intinhigh <= 1;
             `endif
             //itc end
             //systimer;            
@@ -321,7 +328,10 @@ module int_basic_perif(
                         end
                         else if(wb_adr[5:2] == `sysgiereg)begin
                             `ifdef enable_itc
-                                neggie <= wb_in[`gie];
+                                intinhigh <= wb_in[`gie];
+                                intinhighreg <= wb_in[`gie];
+                                intinlow <= wb_in[`gielow];
+                                intinlowreg <= wb_in[`gielow];
                             `endif
                         end
                         else if(wb_adr[5:2] == `uartinte)begin
@@ -503,7 +513,7 @@ module int_basic_perif(
                     end                           
                     else if(wb_adr[5:2] == `sysgiereg)begin
                         `ifdef enable_itc
-                            wb_out <= {{31{1'b0}},neggie};
+                            wb_out <= {{30{1'b0}},intinlow,intinhigh};
                         `endif
                     end
                     else if(wb_adr[5:2] == `uartintf)begin
