@@ -152,6 +152,7 @@ module zpu_core(
         .ram_adr(mem_inst_adr),
         .ram_msk(mem_inst_wrmsk),
         .ram_enable(mem_inst_enable),
+        .ram_busy(1'b0),
 
         .wb_in_itc(wb_in_itc),
         .wb_out_itc(wb_out_itc),

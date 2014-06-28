@@ -1,3 +1,7 @@
+there is a core that implement most of the instuction exepted DIV and MOD in pipelined folder
+
+there is a core that implement some instruction in pipelined.mid folder
+
 most of the core tested wisbone wait and stall state not
 
 for memory have to use xilinx block ram with blk_mem_gen_v7_3_0 name

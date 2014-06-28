@@ -288,7 +288,7 @@ module execution(
                             dbg_o[95:64] <= tos; //tos
                             dbg_o[127:96] <= nos; //nos
                             dbg_o[135:128] <= instructiondbg; //inst
-                            if(instructiondbg != 8'h01)begin
+                            if((instructiondbg != 8'h01) && (instin != `exe_mov) && (instin != `exe_store2))begin
                                 dbg_o[136] <= 1;
                             end
                             case(instin)                // operations

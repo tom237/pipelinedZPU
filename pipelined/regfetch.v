@@ -189,6 +189,7 @@ module regfetch(
                 offset <= sparray[`stay_sp_source];
                 sp <= sp;
                 state <= `runstate_pref;
+                instructiondbgout <= 8'h01;
             end
         end
     end
