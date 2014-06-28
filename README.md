@@ -31,7 +31,7 @@ zpuromgencoe input_file_name.bin output_file_name.coe
 		-trace generator
 		-debug core
 		-rom generator
-		-wisbone test stall and wait state on stalve and master
+		-wisbone test stall and wait state on slave and master
 		-SRAM ctrl and caches
 		-write dokumentation
 		-interrupt controler test
