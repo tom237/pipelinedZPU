@@ -24,7 +24,7 @@ module zpu_tb(
     );
 
     reg clk;
-    reg inter;
+    reg[28:0] inter;
     reg rst;
     reg enable;
     reg wb_slave_cyc;
@@ -40,17 +40,23 @@ module zpu_tb(
     wire[7:0] inst;
     wire dbgok;
 
+    wire tx_serial;
+    reg rx_serial;
+
     zpu_core uut(
         .clk(clk),
         .rstin(rst),
         .interrupt(inter),
+    //    .interrupt(0),
         .enable(enable),
         .wb_stall(wb_stall),
         .wb_ack(wb_ack),
         .wb_stb(wb_stb),
         .wb_slave_cyc(wb_slave_cyc),
         .wb_slave_stb(wb_slave_stb),
-        .dbg_o(dbg_o)
+        .dbg_o(dbg_o),
+        .tx_serial(tx_serial),
+        .rx_serial(rx_serial)
         );    
 
     assign pc = dbg_o[31:0]; //pc
@@ -61,6 +67,7 @@ module zpu_tb(
     assign dbgok = dbg_o[136]; // valid data
 
     initial begin
+        rx_serial <= 1;
         clk <= 0;
         rst <= 1;
         enable <= 1;
@@ -69,8 +76,10 @@ module zpu_tb(
         wb_stall <= 0;
         inter <= 0;
         #30 rst <= 0;
-        #100 inter <= 1;
-        #150 inter <= 0;
+        #500 inter <= 1;
+        #200 inter <= 0;
+        #1000rx_serial <= 0;
+        #1500 rx_serial <= 1;
     end
 
     always begin

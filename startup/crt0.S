@@ -42,24 +42,6 @@ Boston, MA 02111-1307, USA.  */
 			im \value
 	.endm
 
-	.macro  jsr address
-			im _memreg     	; save R0
-			load
-			im _memreg+4	; save R1
-			load
-			im _memreg+8	; save R2
-			load
-			fixedim \address
-			call
-			im _memreg+8
-			store		; restore R2
-			im _memreg+4
-			store		; restore R1
-			im _memreg
-			store		; restore R0
-	.endm
-
-
 	.macro  jmp address
 			fixedim \address
 			poppc
@@ -152,34 +134,54 @@ Boston, MA 02111-1307, USA.  */
 _start:
 		; intSp must be 0 when we jump to _premain
 		
-		im ZPU_ID
+		;im ZPU_ID
+		.byte 0x82
 		loadsp 0
 		im _cpu_config
 		store
 		config
 		jmp _premain
 
+	.balign 16,0
+# offset 0x0000 0010
+		.globl _memreg
+		.weak _memreg
+_memreg:
 
 
         .balign 32,0
 # offset 0x0000 0020
 		.globl _zpu_interrupt_vector
 _zpu_interrupt_vector:
-		jmp ___zpu_interrupt_vector
+		.byte 0x90
+		;im _memreg     	; save R0
+		load
+		;im _memreg+4	; save R1
+		.byte 0x94
+		load
+		;im _memreg+8	; save R2
+		.byte 0x98
+		load
+		fixedim 0x080A0000;_int_ctrl_number
+		load
+		fixedim _vector_table_base
+		add
+		load
+		call
+		.byte 0x98
+		;im _memreg+8
+		store		; restore R2
+		.byte 0x94
+		;im _memreg+4
+		store		; restore R1
+		;im _memreg
+		.byte 0x90
+		store		; restore R0
+		.byte 0x03 ;POPINT instruction if core not know this instuction it is a break
+		poppc ;there for compatibility POPINT instuction less core  
 
 
 	.balign 8,0
-# offset 0x0000 0028
-		.globl _zpu_interrupt_vector_low
-_zpu_interrupt_vector_low:
-		jmp ___zpu_interrupt_vector_low
-		
-        .balign 16,0
-# offset 0x0000 0030
-		.globl _memreg
-		.weak _memreg
-_memreg:
-
 
 /* instruction emulation code */
 
@@ -952,22 +954,7 @@ ___mod:
 	cimpl __modsi3
 ___div:
 	cimpl __divsi3
-
-        .globl ___zpu_interrupt_vector
-        .weak ___zpu_interrupt_vector
-
-___zpu_interrupt_vector:
-	jsr _zpu_interrupt
-	.byte 0x03 ;POPINT instructon
-	poppc ;here to be compatible zpu without POPINT instruction
 	
-        .globl ___zpu_interrupt_vector_low
-        .weak ___zpu_interrupt_vector_low
-
-___zpu_interrupt_vector_low: ; without POPINT instruction low prioryti interrupt don't work
-	jsr _zpu_interrupt_low
-	.byte 0x03 ;POPINT instructon
-
 	
 	.section ".rodata"
 	.balign 4,0

@@ -8,8 +8,11 @@ for memory have to use xilinx block ram with blk_mem_gen_v7_3_0 name
 
 startup folder contain modified gcc files copy them to zpugcc toolchain/gcc/libgloss/zpu
 then complie gcc
+
+crt0.s is very dirty because i just this way can get ride of a lot of nop instruction
+
 this modification is reguired if you want use priority interrupt and POPINT instruction or comment them out in zpupkg.v if don't vant to use.
-in pic_example folder there is a priority interupt example
+in pic_example folder there is a priority vectored interupt example
 
 	-zpupkg.v (definitions for soc and core)
 

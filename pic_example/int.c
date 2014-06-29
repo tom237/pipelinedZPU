@@ -9,6 +9,59 @@
 #define TIMER_INT_EN    *(volatile unsigned int *) 0x080a002c
 #define TIMER_INT_FLEG    *(volatile unsigned int *) 0x080a0030
 #define TIMER_PERIOD    *(volatile unsigned int *) 0x080a0034
+#define UARTRX    *(volatile unsigned int *) 0x080a0010
+#define UARTTX    *(volatile unsigned int *) 0x080a000c
+#define UART_INT_FLEG    *(volatile unsigned int *) 0x080a0028
+#define UART_INT_EN    *(volatile unsigned int *) 0x080a0024
+
+void  _zpu_interrupt(void)
+{
+	/* interrupts are enabled so we need to finish up quickly,
+	 * lest we will get infinite recursion!*/
+//	puts("interrupt HI\n");
+	INT_GIE = 3;
+	while(1);
+
+}
+
+void  muhaha(void);
+void varj(void);
+void echo(void);
+
+const void *_vector_table_base[32] = {
+	varj,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	muhaha,        //32  bit system timer
+	echo,		//uart rx
+	_zpu_interrupt,	//uart tx
+};
 
 volatile int out;
 
@@ -20,32 +73,40 @@ volatile int out;
  * acknowledging interrupts(i.e. keep interrupts asserted until
  * software acknowledges them via memory mapped IO).
  */
-void  _zpu_interrupt(void)
-{
-	/* interrupts are enabled so we need to finish up quickly,
-	 * lest we will get infinite recursion!*/
-	puts("interrupt HI\n");
-	out = out ^ 0x01;
-	GPIO_DIR = out;
-	TIMER_INT_FLEG = 1;
-	INT_PRIO |= (1 << 29);
+
+void varj(void){
+	TIMER_INT_FLEG = 1;	
 }
 
-void  _zpu_interrupt_low(void)
+void  muhaha(void)
 {
+	puts("\ninterrupt timer\n");
+	TIMER_INT_FLEG = 1;
+	//INT_PRIO ^= (1 << 29);
+}
+
+void echo(void){
+	//INT_PRIO ^= (1 << 30);
+	while((UARTTX & 0x100) == 0);
+	UARTTX = UARTRX & 0xff;
+	UART_INT_FLEG = 1;
+}
+
+//void  _zpu_interrupt_low(void)
+//{
 	/* interrupts are enabled so we need to finish up quickly,
 	 * lest we will get infinite recursion!*/
-	puts("interrupt LOW\n");
-	out = out ^ 0x02;
-	GPIO_DIR = out;
-	TIMER_INT_FLEG = 1;
-	INT_PRIO &= ~(1 << 29);
-}
+//	puts("interrupt LOW\n");
+//	out = out ^ 0x02;
+//	GPIO_DIR = out;
+//	TIMER_INT_FLEG = 1;
+//	INT_PRIO &= ~(1 << 29);
+//}
 
 int main(int argc, char **argv)
 {
 	int t;
-	INT_GIE=1;
+	INT_GIE=3;
 
 	
 
@@ -53,9 +114,11 @@ int main(int argc, char **argv)
 	TIMER_PERIOD=0x00ffffff;
 	TIMER_INT_FLEG=0x03;
 	TIMER_INT_EN=1;
+	UART_INT_EN = 1;
+	INT_PRIO = (1 << 29);
+	
 	INT_GIE=0;
 	while(1){
-		out = out ^ 0x04;
 	}
     
 }

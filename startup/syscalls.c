@@ -7,7 +7,7 @@
 
 #define SYS_ftruncate 3000
 #define SYS_isatty 3001
-
+ 
 /* Set to 1 if we are running on hardware. The config instruction is 
  * always emulated on the simulator. The emulation code pokes this 
  * variable to 1.
@@ -56,19 +56,47 @@ void __attribute__ ((weak)) _exit (int status)
 	for (;;);
 }
 
-void __attribute__ ((weak)) _zpu_interrupt(void)  
+void __attribute__ ((weak)) _zpu_interrupt(void)   
 {
 	/* not implemented in libgloss */
 	__asm("breakpoint");
 	for (;;);
 }
 
-void __attribute__ ((weak)) _zpu_interrupt_low(void)  
-{
-	/* not implemented in libgloss */
-	__asm("breakpoint");
-	for (;;);
-}
+const void __attribute__ ((weak)) *_vector_table_base[32] = {
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+	_zpu_interrupt,
+};
 
 int __attribute__ ((weak))
 _DEFUN (write, (fd, buf, nbytes),
