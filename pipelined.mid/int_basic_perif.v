@@ -220,6 +220,7 @@ module int_basic_perif(
                                 if((interuptsaray[i] == 1) && (intpriority[i] == 0))begin
                                     intreq <= 1;
                                     intinhighreg <= 1;
+                                    intnumber <= i;
                                     irq_adr <= `interruptadr;
                                 end
                             end
@@ -233,12 +234,11 @@ module int_basic_perif(
                 `else
                     if((irq_ack == 0) && (intreq == 0))begin
                         irqcoming <= 0;
-                        intinhighreg <= 0;
                         for(i=0;i<=interrupt_number+2;i=i+1)begin
-                            if(interuptsaray[i] == 1)begin
+                            if((interuptsaray[i] == 1) && (intinhigh == 0))begin
                                 itstate <= i;
                                 irqcoming <= 1;
-                                intinhighreg <= 1;
+                                intnumber <= i;
                                 intreq <= 1;                        
                                 irq_adr <= `interruptadr;
                             end
