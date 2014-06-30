@@ -118,12 +118,12 @@ module int_basic_perif(
 
     assign irq_adr = `interruptadr;
     
-    for(j=0;j<interrupt_number;j=j+1)begin
-        assign interuptsaray[j] = interrup[j];
+    for(j=0;j<interrupt_number;j=j+1)begin : interrupt_copier
+        assign interuptsaray[j+3] = interrup[j];
     end
-    assign interuptsaray[interrupt_number] = (systimerintenable == 1) ? systimerintfleg : 1'b0;
-    assign interuptsaray[interrupt_number + 1] = (uratintena[`uartrxinte] == 1) ? uartintfleg[`uartrxintf] : 1'b0;
-    assign interuptsaray[interrupt_number + 2] = (uratintena[`uarttxinte] == 1) ? uartintfleg[`uarttxintf] : 1'b0;
+    assign interuptsaray[0] = (systimerintenable == 1) ? systimerintfleg : 1'b0;
+    assign interuptsaray[1] = (uratintena[`uartrxinte] == 1) ? uartintfleg[`uartrxintf] : 1'b0;
+    assign interuptsaray[2] = (uratintena[`uarttxinte] == 1) ? uartintfleg[`uarttxintf] : 1'b0;
 
     `ifdef enable_POPINT
         assign cpu_irq = (intinhigh == 0) ? intreq : 1'b0;
@@ -186,7 +186,7 @@ module int_basic_perif(
                 `ifdef enable_POPINT
                     `ifdef enable_priority_int
                         if((intinhighreg == 0) && (intinlowreg == 0) && (intreq == 0)) begin
-                            for(i=0;i<=interrupt_number+2;i=i+1)begin
+                            for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_l
                                 if((interuptsaray[i] == 1) && (intpriority[i] == 1))begin
                                     intreq <= 1;
                                     intinlowreg <= 1;
@@ -196,7 +196,7 @@ module int_basic_perif(
                             end
                         end
                         if((intinhighreg == 0) && (intreq == 0)) begin
-                            for(i=0;i<=interrupt_number+2;i=i+1)begin
+                            for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_h
                                 if((interuptsaray[i] == 1) && (intpriority[i] == 0))begin
                                     intreq <= 1;
                                     intinhighreg <= 1;
@@ -218,7 +218,7 @@ module int_basic_perif(
                         end
                     `else                                   
                         if((intinhighreg == 0) && (intreq == 0)) begin
-                            for(i=0;i<=interrupt_number+2;i=i+1)begin
+                            for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_nop
                                 if((interuptsaray[i] == 1) && (intpriority[i] == 0))begin
                                     intreq <= 1;
                                     intinhighreg <= 1;
@@ -236,7 +236,7 @@ module int_basic_perif(
                 `else
                     if((irq_ack == 0) && (intreq == 0))begin
                         irqcoming <= 0;
-                        for(i=0;i<=interrupt_number+2;i=i+1)begin
+                        for(i=0;i<=interrupt_number+2;i=i+1)begin  : interrupt_finder_o
                             if((interuptsaray[i] == 1) && (intinhigh == 0))begin
                                 itstate <= i;
                                 irqcoming <= 1;

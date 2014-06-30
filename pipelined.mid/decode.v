@@ -96,7 +96,7 @@ module decode(
             waitforinst <= 1;
             waitforinstpre <= 1;
             pc <= 0;
-            idim <= 0;;
+            idim <= 0;
             interruptin <= 0;
             instructiondbg <= 1;
             endofintpre <= 0;

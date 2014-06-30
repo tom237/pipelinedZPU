@@ -130,7 +130,7 @@ module execution(
     assign notexe = ~tos;
     assign im0exe = {{25{instinvalue[6]}},instinvalue};
     assign imnexe = {tos[24:0],instinvalue};
-    for(i=0;i<32;i=i+1)begin
+    for(i=0;i<32;i=i+1)begin : flipper
         assign flipexe[i] = tos[31-i]; 
     end
     assign pushspexe = spin | (1 << data_mem_start_bits);
@@ -394,7 +394,7 @@ module execution(
                                 end
                                 `exe_or : begin
                                     tos <= orexe;
-                                    nos <= datain;;
+                                    nos <= datain;
                                     data_mem_out <= orexe;
                                     data_mem_adr <= destiny[data_mem_size_in_bits-1:0];
                                     data_mem_wmask <= 4'hf;

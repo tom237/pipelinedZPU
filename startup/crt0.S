@@ -134,6 +134,7 @@ Boston, MA 02111-1307, USA.  */
 _start:
 		; intSp must be 0 when we jump to _premain
 		
+		nop
 		;im ZPU_ID
 		.byte 0x82
 		loadsp 0
@@ -153,14 +154,14 @@ _memreg:
 # offset 0x0000 0020
 		.globl _zpu_interrupt_vector
 _zpu_interrupt_vector:
-		.byte 0x90
+		.byte 0x90 ;R0 addres
 		;im _memreg     	; save R0
 		load
 		;im _memreg+4	; save R1
-		.byte 0x94
+		.byte 0x94 ;R1 addres
 		load
 		;im _memreg+8	; save R2
-		.byte 0x98
+		.byte 0x98 ;R2 addres
 		load
 		fixedim 0x080A0000;_int_ctrl_number
 		load
@@ -168,14 +169,14 @@ _zpu_interrupt_vector:
 		add
 		load
 		call
-		.byte 0x98
+		.byte 0x98 ;R2 addres
 		;im _memreg+8
 		store		; restore R2
-		.byte 0x94
+		.byte 0x94 ;R1 addres
 		;im _memreg+4
 		store		; restore R1
 		;im _memreg
-		.byte 0x90
+		.byte 0x90 ;R0 addres
 		store		; restore R0
 		.byte 0x03 ;POPINT instruction if core not know this instuction it is a break
 		poppc ;there for compatibility POPINT instuction less core  

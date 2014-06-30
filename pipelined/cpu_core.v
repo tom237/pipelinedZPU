@@ -61,7 +61,7 @@ module cpu_core(
 
     wire flushout;
     wire[data_mem_size_in_bits-1:0] destinyexec;
-    wire stallexe;;
+    wire stallexe;
     wire[5:0] instexe; //??
     wire[6:0] instexevalue;
     wire[data_mem_size_in_bits-1:0] offsetexe;

@@ -29,6 +29,9 @@ void varj(void);
 void echo(void);
 
 const void *_vector_table_base[32] = {
+	muhaha,        //32  bit system timer
+	echo,		//uart rx
+	_zpu_interrupt,	//uart tx
 	varj,
 	_zpu_interrupt,
 	_zpu_interrupt,
@@ -58,9 +61,6 @@ const void *_vector_table_base[32] = {
 	_zpu_interrupt,
 	_zpu_interrupt,
 	_zpu_interrupt,
-	muhaha,        //32  bit system timer
-	echo,		//uart rx
-	_zpu_interrupt,	//uart tx
 };
 
 volatile int out;
