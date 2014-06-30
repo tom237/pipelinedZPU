@@ -208,8 +208,8 @@ module wb_shared_bus(
     assign ram_en = wbm_stb[mastersel];
     assign ram_cyc = wbm_cyc[mastersel];
 
-    assign wb_ack_ram = (mastersel == 0) ? ram_ack : 1'b0;
-    assign wb_ack_dma = (mastersel == 1) ? ram_ack : 1'b0;
+    assign wb_ack_ram = ((mastersel == 0) && (wb_cyc_ram == 1)) ? ram_ack : 1'b0;
+    assign wb_ack_dma = ((mastersel == 1) && (wb_cyc_dma == 1)) ? ram_ack : 1'b0;
 
     assign ram_ack = ((ram_cyc == 1) && (ram_busy == 0)) ? ram_int_ack : 1'b0;
     assign ram_enable = (ram_cyc == 1) ? ram_en : 1'b0;
@@ -237,6 +237,10 @@ module wb_shared_bus(
 
 // ram wb signals
 
+//    reg delay;
+//    reg delay1;
+//    reg delay2;
+
     always @ (posedge clk)begin
         if(rst == 1)begin
             ram_int_ack <= 0;
@@ -244,6 +248,10 @@ module wb_shared_bus(
         end
         else begin
             if(ram_busy == 0)begin
+//                delay <= ram_en;
+//                delay1 <= delay;
+//                delay2 <= delay1;
+//                ram_int_ack <= delay2;
                 ram_int_ack <= ram_en;
             end
 //            ram_sel_msk <= wbm_sel[mastersel];

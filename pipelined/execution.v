@@ -112,7 +112,9 @@ module execution(
     wire[31:0] data_mem_inh[1:0];
     wire[31:0] wb_inh[1:0];
     wire[31:0] storespadr;
-//    reg dbgok;
+
+    reg savenewnos;
+    //    reg dbgok;
                     
     // the valid data from mem tougth a fifo
     assign datain = ((laststoredadr[0] == offset[data_mem_size_in_bits-1:2]) && (laststore[0] == 1)) ? laststoreddat[0] :
@@ -248,6 +250,7 @@ module execution(
             data_mem_enable <= 0;
             newpc <= 0;
             lastbusop <= 0; 
+            savenewnos <= 0;
         end
         else begin                    
             if(lastbusop == 1)begin
@@ -356,6 +359,7 @@ module execution(
                                 end
                                 `exe_store : begin
                                     tos <= datain;
+                                    savenewnos <= 1;
                                     if(tos[31:data_mem_start_bits] == 1)begin
                                         data_mem_adr <= tos[data_mem_size_in_bits-1:0];
                                         data_mem_out <= nos;
@@ -378,14 +382,17 @@ module execution(
                                         if(wb_stall == 0)begin
     //                                        state <= `state_storeack;
                                             lastbusop <= 1;
+                                            wb_stb <= disable_pipelined_wb;
                                         end
                                         else begin
                                             wb_stb <= 1;
-                                        end                                                                    
-                                        wb_stb <= disable_pipelined_wb;
+                                        end                                                                                                            
                                         wb_cyc <= 1;
                                     end
-                                    nos <= datain;
+                                    if(savenewnos == 1) begin
+                                        nos <= datain;
+                                    end
+                                    savenewnos <= 0;
                                 end
                                 default : begin//`exe_nop : begin
     //                                tos <= tos;
@@ -715,7 +722,8 @@ module execution(
                                     end                                                    
                                 end
                                 `exe_storeb : begin
-                                    nos <= datain;
+                                    tos <= datain;
+                                    savenewnos <= 1;
                                     if(tos[31:data_mem_start_bits] == 1)begin
                                         data_mem_adr <= tos[data_mem_size_in_bits-1:0];
                                         data_mem_out <= {nos[7:0],nos[7:0],nos[7:0],nos[7:0]};
@@ -753,7 +761,8 @@ module execution(
                                     end                                                    
                                 end
                                 `exe_storeh : begin
-                                    nos <= datain;
+                                    tos <= datain;
+                                    savenewnos <= 1;
                                     if(tos[31:data_mem_start_bits] == 1)begin
                                         memorybusoperation <= 0;
                                         data_mem_adr <= tos[data_mem_size_in_bits-1:0];
@@ -794,11 +803,11 @@ module execution(
                                 if(wb_stall == 0)begin
                                     state <= nextloadstate;
                                     lastbusop <= 1;
+                                    wb_stb <= disable_pipelined_wb;
                                 end
                                 else begin
                                     wb_stb <= 1;
-                                end
-                                wb_stb <= disable_pipelined_wb;
+                                end                                
                                 wb_cyc <= 1;
                             end
                             else begin

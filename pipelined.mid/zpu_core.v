@@ -152,8 +152,8 @@ module zpu_core(
         .ram_adr(mem_inst_adr),
         .ram_msk(mem_inst_wrmsk),
         .ram_enable(mem_inst_enable),
-	.ram_busy(1'b0),
-        
+        .ram_busy(1'b0),
+
         .wb_in_itc(wb_in_itc),
         .wb_out_itc(wb_out_itc),
         .wb_adr_itc(wb_adr_itc),
@@ -208,6 +208,7 @@ module zpu_core(
 //        .ram_adr(mem_inst_adr),
 //        .ram_msk(mem_inst_wrmsk),
 //        .ram_enable(mem_inst_enable),
+//        .ram_busy(0),
 
 //        .wb_in_itc(wb_in_itc),
 //        .wb_out_itc(wb_out_itc),
@@ -298,7 +299,7 @@ module zpu_core(
         .interuptadr(interuptadr),
         .interrutack(interrutack),
         .exitint(exitint),
-        .enable(enable),
+        .enable(enable), // can use as memory_busy signal for dram controller
         .dbg_o(dbg_o)
     );
         

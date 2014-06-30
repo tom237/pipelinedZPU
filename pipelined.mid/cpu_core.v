@@ -154,8 +154,7 @@ module cpu_core(
         );
         
     decode #(
-        .pc_bit_size(pc_bit_size),
-        .enable_POPINT(enable_POPINT)
+        .pc_bit_size(pc_bit_size)
     )decoder(
         .mem_inst_adr(inst_mem_adr_inst),
         .mem_inst_datin(inst_mem_data_inst),
@@ -193,6 +192,5 @@ module cpu_core(
           .dina(data_mem_out), // input [31 : 0] dinb
           .douta(data_mem_in) // output [31 : 0] doutb
         );
-
 
 endmodule
