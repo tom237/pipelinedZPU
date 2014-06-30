@@ -40,7 +40,7 @@ module int_basic_perif(
     input wire rx_serial,
     input wire[interrupt_number-1:0] interrup,
     output wire cpu_irq,
-    output reg[pc_bit_size-1:0]irq_adr,
+    output wire[pc_bit_size-1:0]irq_adr,
     input wire exitint,
     input wire irq_ack
     );
@@ -115,6 +115,8 @@ module int_basic_perif(
         gpiodir <= 0;
         gpiodirfifo <= 0;
     end
+
+    assign irq_adr = `interruptadr;
     
     for(j=0;j<interrupt_number;j=j+1)begin
         assign interuptsaray[j] = interrup[j];
@@ -139,7 +141,7 @@ module int_basic_perif(
             intreq <= 0;
             irqcoming <= 0;            
             wbackint <= 0;
-            irq_adr <= `interruptadr;
+//            irq_adr <= `interruptadr;
             counter <= 0;
             starttx <= 0;
             boudrate <= clk_hz / boud_rate_debug;
@@ -189,7 +191,7 @@ module int_basic_perif(
                                     intreq <= 1;
                                     intinlowreg <= 1;
                                     intnumber <= i;
-                                    irq_adr <= `interruptadr;
+//                                    irq_adr <= `interruptadr;
                                 end
                             end
                         end
@@ -199,7 +201,7 @@ module int_basic_perif(
                                     intreq <= 1;
                                     intinhighreg <= 1;
                                     intnumber <= i;
-                                    irq_adr <= `interruptadr;
+//                                    irq_adr <= `interruptadr;
                                 end
                             end
                         end
@@ -221,7 +223,7 @@ module int_basic_perif(
                                     intreq <= 1;
                                     intinhighreg <= 1;
                                     intnumber <= i;
-                                    irq_adr <= `interruptadr;
+//                                    irq_adr <= `interruptadr;
                                 end
                             end
                         end
@@ -240,7 +242,7 @@ module int_basic_perif(
                                 irqcoming <= 1;
                                 intnumber <= i;
                                 intreq <= 1;                        
-                                irq_adr <= `interruptadr;
+//                                irq_adr <= `interruptadr;
                             end
                         end
                         
@@ -299,23 +301,23 @@ module int_basic_perif(
             if((wb_cyc == 1) && (wb_stb == 1)) begin
                 if(wb_wren == 1)begin
                     if(wb_sel[0] == 1)begin
-                        if(wb_adr[7:2] == `gpiodata)begin
+                        if(wb_adr[5:2] == `gpiodata)begin
                             `ifdef enable_gpio
                                 gpiodat[7:0] <= wb_in[7:0];
                             `endif
                         end                    
-                        else if(wb_adr[7:2] == `gpiodir)begin
+                        else if(wb_adr[5:2] == `gpiodir)begin
                             `ifdef enable_gpio
                                 gpioddr[7:0] <= wb_in[7:0];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `uarttx)begin
+                        else if(wb_adr[5:2] == `uarttx)begin
                             `ifdef enable_uart        
                                 uarttx[7:0] <= wb_in[7:0];
                                 starttx <= 1;
                             `endif
                         end
-                        else if(wb_adr[7:2] == `counterl)begin
+                        else if(wb_adr[5:2] == `counterl)begin
                             //counter 64
                             `ifdef enable_64b_timer                        
                                 if(wb_in[`counterreset] == 1)begin
@@ -330,7 +332,7 @@ module int_basic_perif(
                             `endif
                             //counter 64 en                                          
                         end
-                        else if(wb_adr[7:2] == `sysgiereg)begin
+                        else if(wb_adr[5:2] == `sysgiereg)begin
                             `ifdef enable_itc
                                 intinhigh <= wb_in[`gie];
                                 intinhighreg <= wb_in[`gie];
@@ -338,12 +340,12 @@ module int_basic_perif(
                                 intinlowreg <= wb_in[`gielow];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `uartinte)begin
+                        else if(wb_adr[5:2] == `uartinte)begin
                             `ifdef enable_uart           
                                 uratintena <= wb_in[1:0];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `uartintf)begin
+                        else if(wb_adr[5:2] == `uartintf)begin
                             `ifdef enable_uart
                                 if(wb_in[`uartrxintf] == 1)begin
                                     uartintfleg[`uartrxintf] <= 0;
@@ -353,12 +355,12 @@ module int_basic_perif(
                                 end
                             `endif
                         end
-                        else if(wb_adr[7:2] == `systimerinte)begin
+                        else if(wb_adr[5:2] == `systimerinte)begin
                             `ifdef enable_sys_timer
                                 systimerintenable <= wb_in[0];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `systimerintf)begin
+                        else if(wb_adr[5:2] == `systimerintf)begin
                             `ifdef enable_sys_timer
                                 if(wb_in[`systimerintfleg] == 1)begin
                                     systimerintfleg <= 0;
@@ -369,17 +371,17 @@ module int_basic_perif(
                                 end
                             `endif
                         end
-                        else if(wb_adr[7:2] == `systimermax)begin
+                        else if(wb_adr[5:2] == `systimermax)begin
                             `ifdef enable_sys_timer
                                 systimermax[7:0] <= wb_in[7:0];
                             `endif
                         end                                                                                                 
-                        else if(wb_adr[7:2] == `boudrate)begin
+                        else if(wb_adr[5:2] == `boudrate)begin
                             `ifdef enable_uart
                                 boudrate[7:0] <= wb_in[7:0];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `intpriobegin)begin
+                        else if(wb_adr[5:2] == `intpriobegin)begin
                             `ifdef enable_itc
                                 `ifdef enable_POPINT
                                     `ifdef enable_priority_int 
@@ -390,27 +392,27 @@ module int_basic_perif(
                         end
                     end
                     if(wb_sel[1] == 1)begin
-                        if(wb_adr[7:2] == `gpiodata)begin
+                        if(wb_adr[5:2] == `gpiodata)begin
                             `ifdef enable_gpio
                                 gpiodat[15:8] <= wb_in[15:8];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `gpiodir)begin
+                        else if(wb_adr[5:2] == `gpiodir)begin
                             `ifdef enable_gpio
                                 gpioddr[15:8] <= wb_in[15:8];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `systimermax)begin
+                        else if(wb_adr[5:2] == `systimermax)begin
                             `ifdef enable_sys_timer
                                 systimermax[15:8] <= wb_in[15:8];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `boudrate)begin
+                        else if(wb_adr[5:2] == `boudrate)begin
                             `ifdef enable_uart
                                 boudrate[15:8] <= wb_in[15:8];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `intpriobegin)begin
+                        else if(wb_adr[5:2] == `intpriobegin)begin
                             `ifdef enable_itc
                                 `ifdef enable_POPINT
                                     `ifdef enable_priority_int
@@ -421,22 +423,22 @@ module int_basic_perif(
                         end
                     end
                     if(wb_sel[2] == 1)begin
-                        if(wb_adr[7:2] == `gpiodata)begin
+                        if(wb_adr[5:2] == `gpiodata)begin
                             `ifdef enable_gpio
                                 gpiodat[23:16] <= wb_in[23:16];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `gpiodir)begin
+                        else if(wb_adr[5:2] == `gpiodir)begin
                             `ifdef enable_gpio
                                 gpioddr[23:16] <= wb_in[23:16];
                             `endif
                         end                    
-                        else if(wb_adr[7:2] == `systimermax)begin
+                        else if(wb_adr[5:2] == `systimermax)begin
                             `ifdef enable_sys_timer
                                 systimermax[23:16] <= wb_in[23:16];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `intpriobegin)begin
+                        else if(wb_adr[5:2] == `intpriobegin)begin
                             `ifdef enable_itc
                                 `ifdef enable_POPINT
                                     `ifdef enable_priority_int
@@ -450,22 +452,22 @@ module int_basic_perif(
 //                        end
                     end
                     if(wb_sel[3] == 1)begin
-                        if(wb_adr[7:2] == `gpiodata)begin
+                        if(wb_adr[5:2] == `gpiodata)begin
                             `ifdef enable_gpio
                                 gpiodat[31:24] <= wb_in[31:24];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `gpiodir)begin
+                        else if(wb_adr[5:2] == `gpiodir)begin
                             `ifdef enable_gpio
                                 gpioddr[31:24] <= wb_in[31:24];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `systimermax)begin
+                        else if(wb_adr[5:2] == `systimermax)begin
                             `ifdef enable_sys_timer
                                 systimermax[31:24] <= wb_in[31:24];
                             `endif
                         end
-                        else if(wb_adr[7:2] == `intpriobegin)begin
+                        else if(wb_adr[5:2] == `intpriobegin)begin
                             `ifdef enable_itc
                                 `ifdef enable_POPINT
                                     `ifdef enable_priority_int
@@ -480,67 +482,67 @@ module int_basic_perif(
                     end
                 end
                 else begin
-                    if(wb_adr[7:2] == `gpiodata)begin
+                    if(wb_adr[5:2] == `gpiodata)begin
                         `ifdef enable_gpio
                             wb_out <= gpiodat;
                         `endif
                     end
-                    else if(wb_adr[7:2] == `gpiodir)begin
+                    else if(wb_adr[5:2] == `gpiodir)begin
                         `ifdef enable_gpio
                             wb_out <= gpioddr;
                         `endif
                     end
-                    else if(wb_adr[7:2] == `uartinte)begin
+                    else if(wb_adr[5:2] == `uartinte)begin
                         `ifdef enable_uart
                             wb_out <= {{30{1'b0}},uratintena};
                         `endif
                     end
-                    else if(wb_adr[7:2] == `uarttx)begin
+                    else if(wb_adr[5:2] == `uarttx)begin
                         `ifdef enable_uart
                             wb_out <= {{23{1'b0}},uarttx[8],8'h00};
                         `endif
                     end                
-                    else if(wb_adr[7:2] == `uartrx)begin
+                    else if(wb_adr[5:2] == `uartrx)begin
                         `ifdef enable_uart
                             wb_out <= {{23{1'b0}},uartrx};
                         `endif
                     end                
-                    else if(wb_adr[7:2] == `counterl)begin
+                    else if(wb_adr[5:2] == `counterl)begin
                         `ifdef enable_64b_timer
                             wb_out <= countersmp[31:0];
                         `endif
                     end                
-                    else if(wb_adr[7:2] == `counterh)begin
+                    else if(wb_adr[5:2] == `counterh)begin
                         `ifdef enable_64b_timer
                             wb_out <= countersmp[63:32];
                         `endif
                     end                           
-                    else if(wb_adr[7:2] == `sysgiereg)begin
+                    else if(wb_adr[5:2] == `sysgiereg)begin
                         `ifdef enable_itc
                             wb_out <= {{30{1'b0}},intinlow,intinhigh};
                         `endif
                     end
-                    else if(wb_adr[7:2] == `uartintf)begin
+                    else if(wb_adr[5:2] == `uartintf)begin
                         `ifdef enable_uart
                             wb_out <= {{30{1'b0}},uartintfleg};
                         `endif
                     end
-                    else if(wb_adr[7:2] == `systimerintf)begin
+                    else if(wb_adr[5:2] == `systimerintf)begin
                         `ifdef enable_sys_timer
                             wb_out <= {{31{1'b0}},systimerintfleg};
                         `endif
                     end                                     
-                    else if(wb_adr[7:2] == `systimerinte)begin
+                    else if(wb_adr[5:2] == `systimerinte)begin
                         `ifdef enable_sys_timer
                             wb_out <= {{31{1'b0}},systimerintenable};
                         `endif
                     end
-                    else if(wb_adr[7:2] == `systimervalue)begin
+                    else if(wb_adr[5:2] == `systimervalue)begin
                         `ifdef enable_sys_timer
                             wb_out <= systimervalue;
                         `endif
                     end
-                    else if(wb_adr[7:2] == `systimermax)begin
+                    else if(wb_adr[5:2] == `systimermax)begin
                         `ifdef enable_sys_timer
                             wb_out <= systimermax;
                         `endif
@@ -550,7 +552,7 @@ module int_basic_perif(
 //                            wb_out <= {{16{1'b0}},boudrate};
 //                        `endif
 //                    end
-                    else if(wb_adr[7:2] == `intpriobegin)begin
+                    else if(wb_adr[5:2] == `intpriobegin)begin
                         `ifdef enable_itc
                             `ifdef enable_POPINT
                                 `ifdef enable_priority_int
@@ -559,7 +561,7 @@ module int_basic_perif(
                             `endif
                         `endif
                     end
-                    else if(wb_adr[7:2] == `intnumberreg)begin
+                    else if(wb_adr[5:2] == `intnumberreg)begin
                         `ifdef enable_itc
                             wb_out <= intnumber << 2;
                         `endif

@@ -9,7 +9,6 @@
 `define enable_uart 1 // enable uart perfieria    
 
 `define interruptadr 8'h20
-`define interruptadr_low 8'h28
 
 `define inst_IM 1
 `define inst_STORESP 2'b10
@@ -150,6 +149,7 @@
 `define gpiodir 2
 `define boudrate 15 
 `define intpriobegin 7
+`define intnumberreg 0
 
 `define counterreset 0
 `define countersample 1
@@ -162,3 +162,4 @@
 `define uarttxinte 1
 
 `define gie 0
+`define gielow 1
