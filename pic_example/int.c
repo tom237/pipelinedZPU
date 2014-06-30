@@ -111,11 +111,11 @@ int main(int argc, char **argv)
 	
 
 
-	TIMER_PERIOD=0x00ffffff;
+	TIMER_PERIOD=0x03ffffff;
 	TIMER_INT_FLEG=0x03;
 	TIMER_INT_EN=1;
 	UART_INT_EN = 1;
-	INT_PRIO = (1 << 29);
+	INT_PRIO = 1; 
 	
 	INT_GIE=0;
 	while(1){

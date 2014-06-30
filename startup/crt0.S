@@ -134,7 +134,6 @@ Boston, MA 02111-1307, USA.  */
 _start:
 		; intSp must be 0 when we jump to _premain
 		
-		nop
 		;im ZPU_ID
 		.byte 0x82
 		loadsp 0
