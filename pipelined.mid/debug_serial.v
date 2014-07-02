@@ -100,6 +100,7 @@ module debug_serial(
             //boudgens end
             
             //rx state machine
+            reciveint <= 0;
             case(rx_state)
                 `rx_idle : begin
                     if(rxfifo2 == 0)begin
