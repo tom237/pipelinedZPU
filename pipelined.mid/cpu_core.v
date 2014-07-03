@@ -61,7 +61,7 @@ module cpu_core(
 
     wire flushout;
     wire[data_mem_size_in_bits-1:0] destinyexec;
-    wire stallexe;;
+    wire stallexe;
     wire[4:0] instexe; //??
     wire[6:0] instexevalue;
     wire[data_mem_size_in_bits-1:0] offsetexe;
@@ -192,5 +192,20 @@ module cpu_core(
           .dina(data_mem_out), // input [31 : 0] dinb
           .douta(data_mem_in) // output [31 : 0] doutb
         );
+
+/*    blk_mem_gen_v7_3_1 code_memory (
+          .clka(clk), // input clka
+          .wea(4'h0), // input [3 : 0] wea
+          .ena(mem_enable_a),
+          .addra(data_mem_a_adr), // input [31 : 0] addra
+          .dina(32'h00000000), // input [31 : 0] dina
+          .douta(data_mem_ain), // output [31 : 0] douta
+          .clkb(clk), // input clkb
+          .web(data_mem_wmask), // input [3 : 0] web
+          .enb(data_mem_enable),
+          .addrb(data_mem_adr), // input [31 : 0] addrb
+          .dinb(data_mem_out), // input [31 : 0] dinb
+          .doutb(data_mem_in) // output [31 : 0] doutb
+        );*/
 
 endmodule

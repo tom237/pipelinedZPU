@@ -37,6 +37,5 @@ zpuromgencoe input_file_name.bin output_file_name.coe
 	TODO list:
 		-trace generator
 		-debug core
-		-rom generator
 		-SRAM ctrl and caches
 		-write dokumentation

@@ -1,3 +1,4 @@
+// compile with gcc zpuromgen.c -o zpuromgen
 #include <unistd.h>
 #include <stdio.h>
 #include <limits.h>
@@ -20,13 +21,6 @@ int main(int argc, char **argv)
 	}
 	fr = open(argv[1], 0);
 	fw = fopen(argv[2], "w");
-	fprintf(fw,"; Sample memory initialization file for Dual Port Block Memory,\n"); 
-	fprintf(fw,";\n"); 
-	fprintf(fw,"; This .COE file specifies the contents for a block memory\n"); 
-	fprintf(fw,"; of depth=512, and width=8.  In this case, values are specified\n"); 
-	fprintf(fw,"; in hexadecimal format. \n");
-	fprintf(fw,"memory_initialization_radix=16;\n"); 
-	fprintf(fw,"memory_initialization_vector= \n");
 	if(fr == -1)
 	{
 		printf("unable to input open file");
@@ -36,6 +30,14 @@ int main(int argc, char **argv)
 		printf("unable to output open file");
 		return 3;
 	}
+	
+	fprintf(fw,"; Sample memory initialization file for Dual Port Block Memory,\n"); 
+	fprintf(fw,";\n"); 
+	fprintf(fw,"; This .COE file specifies the contents for a block memory\n"); 
+	fprintf(fw,"; of depth=512, and width=8.  In this case, values are specified\n"); 
+	fprintf(fw,"; in hexadecimal format. \n");
+	fprintf(fw,"memory_initialization_radix=16;\n"); 
+	fprintf(fw,"memory_initialization_vector= \n");
 	linenumber = 1;
 	while(1)
 	{

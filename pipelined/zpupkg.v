@@ -1,6 +1,7 @@
 //decode unit
 `define enable_POPINT 1 // enable POPINT instuction
 `define enable_priority_int 1 //enable interrupt priority in interrupt controller will be 1 hight and 1 low priority interrupt
+`define enable_vectored_int 1 //enable interrupt vectors
 
 `define enable_itc 1 // enable interrupt controler
 `define enable_64b_timer 1 // enable 64bit timer forclock measurement perfieria

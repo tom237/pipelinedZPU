@@ -65,13 +65,12 @@ module int_basic_perif(
     wire ready_recive;
     wire transmitint;
     wire reciveint;
+    reg[7:0] uarttx;
     reg[31:0] gpiodirfifo;
     reg[31:0] gpioinfifoout;
     reg[31:0] gpioinfifoin;
     reg[31:0] gpioddr;
     reg[31:0] gpiodat;
-    reg[8:0] uarttx;
-    reg[8:0] uartrx;
     reg[63:0] countersmp;
     reg[1:0] uratintena;
     reg[1:0] uartintfleg;
@@ -86,6 +85,8 @@ module int_basic_perif(
     reg intinhigh;
     reg intinlow;
     reg[4:0] intnumber;
+    reg intnumbernotreaded;
+    reg txdatblocking;
 
     `ifdef enable_uart
         debug_serial //#(
@@ -98,7 +99,7 @@ module int_basic_perif(
             .ready_recive(ready_recive),
             .reciveint(reciveint),
             .transmitint(transmitint),
-            .tx_data(uarttx[7:0]),
+            .tx_data(uarttx),
             .rx_data(rxdata),
             .tx_serial(tx_serial),
             .rx_serial(rx_serial),
@@ -153,7 +154,6 @@ module int_basic_perif(
             gpiodirfifo <= 0;
             gpiodat <= 0;
             uarttx <= 0;
-            uartrx <= 0;
             countersmp <= 0;
             `ifdef enable_itc
                 intinhigh <= 0;
@@ -171,7 +171,10 @@ module int_basic_perif(
             intinlowreg <= 0;
             intinhigh <=  0;
             intinlow <=  0;
-            intnumber <= 0; 
+            `ifdef enable_vectored_int
+                intnumber <= 0; 
+                intnumbernotreaded <= 0;
+            `endif
         end
         else begin
             // itc
@@ -185,27 +188,39 @@ module int_basic_perif(
                 end
                 `ifdef enable_POPINT
                     `ifdef enable_priority_int
-                        if((intinhighreg == 0) && (intinlowreg == 0) && (intreq == 0)) begin
-                            for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_l
-                                if((interuptsaray[i] == 1) && (intpriority[i] == 1))begin
-                                    intreq <= 1;
-                                    intinlowreg <= 1;
-                                    intnumber <= i;
-//                                    irq_adr <= `interruptadr;
+                        `ifdef enable_vectored_int
+                            if(intnumbernotreaded == 0) begin
+                        `endif
+                                if((intinhighreg == 0) && (intinlowreg == 0) && (intreq == 0)) begin
+                                    for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_l
+                                        if((interuptsaray[i] == 1) && (intpriority[i] == 1))begin
+                                            intreq <= 1;
+                                            intinlowreg <= 1;
+                                            `ifdef enable_vectored_int
+                                                intnumber <= i;
+                                                intnumbernotreaded <= 1;
+                                            `endif
+        //                                    irq_adr <= `interruptadr;
+                                        end
+                                    end
                                 end
-                            end
-                        end
-                        if((intinhighreg == 0) && (intreq == 0)) begin
-                            for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_h
-                                if((interuptsaray[i] == 1) && (intpriority[i] == 0))begin
-                                    intreq <= 1;
-                                    intinhighreg <= 1;
-                                    intnumber <= i;
-//                                    irq_adr <= `interruptadr;
+                                if((intinhighreg == 0) && (intreq == 0)) begin
+                                    for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_h
+                                        if((interuptsaray[i] == 1) && (intpriority[i] == 0))begin
+                                            intreq <= 1;
+                                            intinhighreg <= 1;
+                                            `ifdef enable_vectored_int
+                                                intnumber <= i;
+                                                intnumbernotreaded <= 1;
+                                            `endif
+        //                                    irq_adr <= `interruptadr;
+                                        end
+                                    end
                                 end
+                        `ifdef enable_vectored_int
                             end
-                        end
-                    
+                        `endif
+                        
                         if(exitint == 1)begin
                             if(intinhigh == 1)begin
                                 intinhighreg <= 0;
@@ -216,18 +231,26 @@ module int_basic_perif(
                                 intinlow <= 0; 
                             end
                         end
-                    `else                                   
-                        if((intinhighreg == 0) && (intreq == 0)) begin
-                            for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_nop
-                                if((interuptsaray[i] == 1) && (intpriority[i] == 0))begin
-                                    intreq <= 1;
-                                    intinhighreg <= 1;
-                                    intnumber <= i;
-//                                    irq_adr <= `interruptadr;
+                    `else
+                        `ifdef enable_vectored_int
+                            if(intnumbernotreaded == 0) begin
+                        `endif
+                                if((intinhighreg == 0) && (intreq == 0)) begin
+                                    for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_nop
+                                        if((interuptsaray[i] == 1) && (intpriority[i] == 0))begin
+                                            intreq <= 1;
+                                            intinhighreg <= 1;
+                                            `ifdef enable_vectored_int
+                                                intnumber <= i;
+                                                intnumbernotreaded <= 1;
+            //                                    irq_adr <= `interruptadr;
+                                            `endif
+                                        end
+                                    end
                                 end
+                        `ifdef enable_vectored_int
                             end
-                        end
-                    
+                        `endif
                         if(exitint == 1)begin
                             intinhighreg <= 0;
                             intinhigh <= 0;
@@ -236,16 +259,24 @@ module int_basic_perif(
                 `else
                     if((irq_ack == 0) && (intreq == 0))begin
                         irqcoming <= 0;
-                        for(i=0;i<=interrupt_number+2;i=i+1)begin  : interrupt_finder_o
-                            if((interuptsaray[i] == 1) && (intinhigh == 0))begin
-                                itstate <= i;
-                                irqcoming <= 1;
-                                intnumber <= i;
-                                intreq <= 1;                        
-//                                irq_adr <= `interruptadr;
-                            end
-                        end
-                        
+                        `ifdef enable_vectored_int
+                            if(intnumbernotreaded == 0) begin
+                        `endif
+                                for(i=0;i<=interrupt_number+2;i=i+1)begin  : interrupt_finder_o
+                                    if((interuptsaray[i] == 1) && (intinhigh == 0))begin
+                                        itstate <= i;
+                                        irqcoming <= 1;                                        
+                                        intreq <= 1;
+                                        `ifdef enable_vectored_int
+                                            intnumbernotreaded <= 1;
+                                            intnumber <= i;         
+                                        `endif               
+        //                                irq_adr <= `interruptadr;
+                                    end
+                                end
+                        `ifdef enable_vectored_int
+                            end                   
+                        `endif     
                     end
                 `endif
             `else
@@ -264,9 +295,8 @@ module int_basic_perif(
             `endif
             //systimer end;
             //uart
-            `ifdef enable_uart           
-                uartrx <= {ready_recive,rxdata};
-                uarttx[8] <= transmitint;
+            `ifdef enable_uart
+                txdatblocking = ((transmitint == 1) || (starttx == 1)) ? 1'b1 : 1'b0;        
                 if(transmitint == 1)begin
                     uartintfleg[`uarttxintf] <= 1;
                 end
@@ -313,7 +343,7 @@ module int_basic_perif(
                         end
                         else if(wb_adr[5:2] == `uarttx)begin
                             `ifdef enable_uart        
-                                uarttx[7:0] <= wb_in[7:0];
+                                uarttx <= wb_in[7:0];
                                 starttx <= 1;
                             `endif
                         end
@@ -499,12 +529,13 @@ module int_basic_perif(
                     end
                     else if(wb_adr[5:2] == `uarttx)begin
                         `ifdef enable_uart
-                            wb_out <= {{23{1'b0}},uarttx[8],8'h00};
+                            txdatblocking = ((transmitint == 1) || (starttx == 1)) ? 1'b1 : 1'b0;
+                            wb_out <= {{23{1'b0}},txdatblocking,8'h00};
                         `endif
                     end                
                     else if(wb_adr[5:2] == `uartrx)begin
                         `ifdef enable_uart
-                            wb_out <= {{23{1'b0}},uartrx};
+                            wb_out <= {{23{1'b0}},ready_recive,rxdata};
                         `endif
                     end                
                     else if(wb_adr[5:2] == `counterl)begin
@@ -563,7 +594,12 @@ module int_basic_perif(
                     end
                     else if(wb_adr[5:2] == `intnumberreg)begin
                         `ifdef enable_itc
-                            wb_out <= intnumber << 2;
+                            `ifdef enable_vectored_int
+                                wb_out <= intnumber << 2;
+                                intnumbernotreaded <= 0;
+                            `else
+                                wb_out <= 0;
+                            `endif
                         `endif
                     end
                 end                                     

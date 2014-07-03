@@ -16,7 +16,7 @@ module steck(
     //simle write first dual port ram
 
     parameter data_mem_size_in_bits = 10;
-    parameter data_size = (1 << data_mem_size_in_bits) - 1;
+    parameter data_size = (1 << (data_mem_size_in_bits - 2)) - 1;
 
     reg[31:0] RAM[data_size:0];
 
@@ -24,34 +24,34 @@ module steck(
         if(ena == 1)begin
               if(wea[0] == 1)begin
                  douta[7:0] <= dina[7:0];
-                 RAM[addra[data_mem_size_in_bits+1:2]][7:0] <= dina[7:0];
+                 RAM[addra[data_mem_size_in_bits-1:2]][7:0] <= dina[7:0];
               end
               else begin
-                 douta[7:0] <= RAM[addra[data_mem_size_in_bits+1:2]][7:0]; 
+                 douta[7:0] <= RAM[addra[data_mem_size_in_bits-1:2]][7:0]; 
               end
               
               if(wea[1] == 1)begin
                  douta[15:8] <= dina[15:8];
-                 RAM[addra[data_mem_size_in_bits+1:2]][15:8] <= dina[15:8];
+                 RAM[addra[data_mem_size_in_bits-1:2]][15:8] <= dina[15:8];
               end
               else begin
-                 douta[15:8] <= RAM[addra[data_mem_size_in_bits+1:2]][15:8]; 
+                 douta[15:8] <= RAM[addra[data_mem_size_in_bits-1:2]][15:8]; 
               end
               
               if(wea[2] == 1)begin
                  douta[23:16] <= dina[23:16];
-                 RAM[addra[data_mem_size_in_bits+1:2]][23:16] <= dina[23:16];
+                 RAM[addra[data_mem_size_in_bits-1:2]][23:16] <= dina[23:16];
               end
               else begin
-                 douta[23:16] <= RAM[addra[data_mem_size_in_bits+1:2]][23:16]; 
+                 douta[23:16] <= RAM[addra[data_mem_size_in_bits-1:2]][23:16]; 
               end
                             
               if(wea[3] == 1)begin
                  douta[31:24] <= dina[31:24];
-                 RAM[addra[data_mem_size_in_bits+1:2]][31:24] <= dina[31:24];
+                 RAM[addra[data_mem_size_in_bits-1:2]][31:24] <= dina[31:24];
               end
               else begin
-                 douta[31:24] <= RAM[addra[data_mem_size_in_bits+1:2]][31:24]; 
+                 douta[31:24] <= RAM[addra[data_mem_size_in_bits-1:2]][31:24]; 
               end
               
         end
@@ -59,7 +59,7 @@ module steck(
 
     always @ (posedge clk)begin
         if(enb == 1)begin
-              doutb <= RAM[addrb[data_mem_size_in_bits+1:2]];
+              doutb <= RAM[addrb[data_mem_size_in_bits-1:2]];
         end
     end
 endmodule

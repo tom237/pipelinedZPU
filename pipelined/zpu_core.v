@@ -257,8 +257,22 @@ module zpu_core(
         .enable(enable),
         .dbg_o(dbg_o)
     );
-        
-    blk_mem_gen_v7_3_0 code_memory (
+
+    memory code_memory (
+          .clk(clk), // input clka
+          .web(4'h0), // input [3 : 0] wea
+          .enb(mem_inst_enable_inst),
+          .addrb(inst_mem_adr_inst), // input [31 : 0] addra
+          .dinb(32'h00000000), // input [31 : 0] dina
+          .doutb(inst_mem_data_inst), // output [31 : 0] douta
+          .wea(mem_inst_wrmsk), // input [3 : 0] web
+          .ena(mem_inst_enable),
+          .addra(mem_inst_adr), // input [31 : 0] addrb
+          .dina(mem_data_inst_out), // input [31 : 0] dinb
+          .douta(mem_data_inst_in) // output [31 : 0] doutb
+        );
+                
+/*    blk_mem_gen_v7_3_0 code_memory (
           .clka(clk), // input clka
           .wea(4'h0), // input [3 : 0] wea
           .ena(mem_inst_enable_inst),
@@ -271,6 +285,6 @@ module zpu_core(
           .addrb(mem_inst_adr), // input [31 : 0] addrb
           .dinb(mem_data_inst_out), // input [31 : 0] dinb
           .doutb(mem_data_inst_in) // output [31 : 0] doutb
-        );
+        );*/
         
 endmodule
