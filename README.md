@@ -34,7 +34,11 @@ zpuromgencoe is generate a .coe file from .bin for xilinx block ram generator
 usage
 zpuromgencoe input_file_name.bin output_file_name.coe
 
+zpuromgen is generate a verilog file from .bin for program memory
+zpuromgen input_file_name.bin output_file_name.v ram size
+ 
 	TODO list:
+		-optimalisazion for size
 		-trace generator
 		-debug core
 		-SRAM ctrl and caches

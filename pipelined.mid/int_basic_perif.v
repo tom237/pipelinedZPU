@@ -209,6 +209,9 @@ module int_basic_perif(
                                         if((interuptsaray[i] == 1) && (intpriority[i] == 0))begin
                                             intreq <= 1;
                                             intinhighreg <= 1;
+                                            if(intinlowreg == 0)begin
+                                                intinlowreg <= 0;
+                                            end
                                             `ifdef enable_vectored_int
                                                 intnumber <= i;
                                                 intnumbernotreaded <= 1;

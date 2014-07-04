@@ -1,0 +1,13 @@
+zpu_tb.v
+
+zpu_control.v
+zpu_core.v
+wb_shared_bus.v
+int_basic_perif.v
+debug_serial.v
+cpu_core.v
+execution.v
+regfetch.v
+decode.v
+steck.v
+rom.v
