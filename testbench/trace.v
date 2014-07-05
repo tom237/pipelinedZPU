@@ -45,8 +45,8 @@ module trace(
 
     initial begin
         tracefile = $fopen("trace.log","w");
-        $fwrite(tracefile,"#PC      Opcode    SP       A=[SP]    B=[SP+1]  Clk Counter        Assembler\n");
-        $fwrite(tracefile,"#---------------------------------------------------------------------------\n");
+        $fwrite(tracefile,"#PC      Opcode    SP       A=[SP]    B=[SP+1]  Clk Counter\n");
+        $fwrite(tracefile,"#----------------------------------------------------------\n");
         $fwrite(tracefile,"\n");
         counter <= 0;
     end
