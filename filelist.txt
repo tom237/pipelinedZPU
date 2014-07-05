@@ -1,3 +1,4 @@
+trace.v
 zpu_tb.v
 
 zpu_control.v

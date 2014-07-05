@@ -43,6 +43,15 @@ module zpu_tb(
     wire tx_serial;
     reg rx_serial;
 
+    reg[31:0] wb_slave_adr;
+    reg wb_slave_wren;
+
+    trace trace_gen(
+        .clk(clk),
+        .rst(rst),
+        .dbg_i(dbg_o)
+        );
+
     zpu_core uut(
         .clk(clk),
         .rstin(rst),
@@ -55,9 +64,13 @@ module zpu_tb(
         .wb_slave_cyc(wb_slave_cyc),
         .wb_slave_stb(wb_slave_stb),
         .dbg_o(dbg_o),
+        .wb_slave_adr(wb_slave_adr),
+        .wb_slave_wren(wb_slave_wren),
         .tx_serial(tx_serial),
         .rx_serial(rx_serial)
         );    
+
+    
 
     assign pc = dbg_o[31:0]; //pc
     assign sp = dbg_o[63:32]; //sp
@@ -75,9 +88,41 @@ module zpu_tb(
         wb_slave_stb <= 0;
         wb_stall <= 0;
         inter <= 0;
+        wb_stall <= 0;
+        wb_slave_adr <= 256;
+        wb_slave_wren <= 0;
         #30 rst <= 0;
-        #500 inter <= 1;
-        #200 inter <= 0;
+
+        #5000 inter <= 8'h01;
+        #500 inter <= 8'h03;
+        #400 inter <= 8'h00;
+        #2000 inter <= 8'h02;
+        #400 inter <= 8'h03;
+        #400 inter <= 8'h00;
+        #2000 inter <= 8'h03;
+        #400 inter <= 8'h00;
+        
+//        #100 wb_slave_cyc <= 1;
+//        #0 wb_slave_stb <= 1;        
+//        #100 wb_slave_stb <= 0;
+//        #0 wb_slave_cyc <= 0;
+        
+//        #50 wb_slave_cyc <= 1;
+//        #0 wb_slave_stb <= 1;        
+//        #200 wb_slave_stb <= 0;
+//        #0 wb_slave_cyc <= 0;
+
+/*        #200 inter <= 1;
+        #80 inter <= 0;
+        #210 inter <= 1;
+        #80 inter <= 0;
+        #220 inter <= 1;
+        #80 inter <= 0;
+        #230 inter <= 1;
+        #80 inter <= 0;
+        #240 inter <= 1;
+        #80 inter <= 0;
+*/        
         #1000rx_serial <= 0;
         #1500 rx_serial <= 1;
     end
