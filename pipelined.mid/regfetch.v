@@ -57,7 +57,7 @@ module regfetch(
     wire[data_mem_size_in_bits-1:0] sparray[3:0];
     wire[data_mem_size_in_bits-1:0] spdestarray[3:0];
 
-    //signals for stack b adress 
+    //signals for stack adress 
     assign sparray[`stay_sp_source] = sp[data_mem_size_in_bits-1:0] + 4'h4;
     assign sparray[`inc_sp_source] = sp[data_mem_size_in_bits-1:0] + 4'h8;
     assign sparray[`offset_sp_source] = sp[data_mem_size_in_bits-1:0] + (instofset << 2);
@@ -104,13 +104,13 @@ module regfetch(
                         default : begin//`runstate_pref : begin //run executions and modifie some os instructions
                             offset <= sparray[spstateadr];                               
                             sp <= spdestarray[spstate];
-                            case(decodedinst)
-                                `exe_store : begin //some special instruction that read end write data diferent from other instruction
+                            case(decodedinst)  //some special instruction that read end write data diferent from other instruction
+                                `exe_store : begin   // read to times sp + 8 and sp + 4 2 times so it will be sp+8 and read data form sp +8 and sp+12
                                     destiny <= spdestarray[spstate];                                                    
                                     instout <= decodedinst;
                                     state <= `pref_store;
                                 end
-                                `exe_storeb : begin
+                                `exe_storeb : begin //same as store
                                     destiny <= spdestarray[spstate];                                                    
                                     instout <= decodedinst;
                                     state <= `pref_store;
@@ -120,19 +120,19 @@ module regfetch(
                                     instout <= `exe_nop;                                    
                                     state <= `pref_popsp;
                                 end
-                                `exe_storesp : begin // storesp just push the offset value to seve an adder and the adress will be calculated in next stage
+                                `exe_storesp : begin  // storesp just push the offset value by 2 and adress will be calculated in next stage
                                     destiny <= instofset << 2;
                                     instout <= decodedinst;
                                 end
-                                `exe_storesp1 : begin
+                                `exe_storesp1 : begin  // storesp just push the offset value by 2 and adress will be calculated in next stage
                                     destiny <= instofset << 2;
                                     instout <= decodedinst;
                                 end
-                                `exe_storesp2 : begin
+                                `exe_storesp2 : begin  // storesp just push the offset value by 2 and adress will be calculated in next stage
                                     destiny <= instofset << 2;
                                     instout <= decodedinst;
                                 end
-                                `exe_neqbench : begin
+                                `exe_neqbench : begin //same as store
                                     destiny <= spdestarray[spstate];                                        
                                     instout <= decodedinst;                                    
                                     state <= `pref_branch;

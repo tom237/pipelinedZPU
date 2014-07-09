@@ -27,8 +27,8 @@ module decode(
     output wire mem_inst_enable,
     output reg[5:0] decodedinst,
     output reg[4:0] offset,
-    output reg[1:0] spstate,
-    output reg[1:0] spstateadrdata,
+    output reg[1:0] spstate, // it will be changed on sp
+    output reg[1:0] spstateadrdata, // it will give as adress to memory
     input wire stall,
     input wire flush,
     input wire clk,
@@ -71,12 +71,12 @@ module decode(
     
     assign opcodein = opcodearray[pc[1:0]]; 
 
-    //instruction adr decode    
+    //instruction adr generation    
     assign mem_inst_adr = (flush == 1) ? newpc :
                           ((interrupt == 1) && (interruptinpre == 0) && (idim == 0)) ? interuptadr :
                           ((waitforinstpre == 1) || (stall == 1)) ? pc :
                           nextpc; 
-    assign mem_inst_enable = (((stall == 1) && (flush == 0) && (waitforinstpre == 0)) || (enable == 0)) ? 1'b0 : 1'b1;
+    assign mem_inst_enable = (((stall == 1) && (flush == 0) && (waitforinstpre == 0)) || (enable == 0)) ? 1'b0 : 1'b1; // enable inst mem 
     
     assign nextpc = pc + 4'b1;
 
@@ -106,7 +106,7 @@ module decode(
             `endif
         end
         else begin
-            `ifdef enable_POPINT
+            `ifdef enable_POPINT // enable popint will generate only 1 cycle long ack signal
                 if(interruptin == 1)begin
                     interruptin <= 0;
                     interruptinpre <= 0;
@@ -118,20 +118,19 @@ module decode(
                     interruptin <= 0;
                 end 
             `endif
-            waitforinstpre <= 0;
+            waitforinstpre <= 0; // 2 cycle delay for wait for memory if pc changed
             waitforinst <= waitforinstpre;
             if(flush == 0)begin
                 if(stall == 0)begin
                     if((waitforinst == 0) && (enable == 1))begin // decode instructions
                         `ifdef enable_POPINT
-                            endofint <=  endofintpre;// delay for 2 pipeline stage                            
+                            endofint <=  endofintpre;// delay for 2 pipeline stage to send ack when ther interrupt executrd                            
                             if(interruptin == 0)begin
                                 interruptin <= interruptinpre;
                             end
                         `else
                             interruptin <= interruptinpre;
                         `endif
-                        interruptin <= interruptinpre;
                         pcout <= pc;
                         instvalue <= opcodein[6:0];
                         offset <= inernaloffset;
@@ -140,20 +139,20 @@ module decode(
                     `else
                         if((interrupt == 1) && (interruptinpre == 0) && (idim == 0)) begin //if there is an interrupt execute that
                     `endif
-                        interruptinpre <= 1;
+                            interruptinpre <= 1;  // jump to interrupt adress default 0x20 and pushpc
                             spstateadrdata <= `stay_sp_source;
                             spstate <= `dec_sp;
                             decodedinst <= `exe_pushpc;
                             waitforinst <= 1;
-                            waitforinstpre <= 1;
+                            waitforinstpre <= 1; 
                             pc <= interuptadr;
                             instructiondbg <= 8'h03;
-                            nextpcout <= pc;                                                    
+                            nextpcout <= pc; // save the curet pc for pushpc in interrupt                                                    
                         end
                         else begin
-                            nextpcout <= nextpc;                                                
+                            nextpcout <= nextpc; //send next pc for other operations                                                
                             instructiondbg <= opcodein;
-                            if(opcodein[7] == `inst_IM)begin
+                            if(opcodein[7] == `inst_IM)begin  // decode im
                                 idim <= 1;
                                 if(idim == 0)begin
                                     spstateadrdata <= `stay_sp_source;
@@ -170,12 +169,12 @@ module decode(
                             else begin
                                 idim <= 0;
                                 case(opcodein[6:5])
-                                    `inst_STORESP : begin
+                                    `inst_STORESP : begin // decode store sp
                                         spstateadrdata <= `inc_sp_source;
-                                        if(inernaloffset == 5'b00001)begin //decode special case of storesp
+                                        if(inernaloffset == 5'b00001)begin //decode special case of storesp store to tos and read new nos 
                                             decodedinst <= `exe_storesp1;
                                         end
-                                        else if(inernaloffset == 5'b00010)begin
+                                        else if(inernaloffset == 5'b00010)begin //decode special case of storesp flip nos and tos
                                             decodedinst <= `exe_storesp2;
                                         end
                                         else begin
@@ -184,13 +183,13 @@ module decode(
                                         spstate <= `inc_sp;                                        
                                         pc <= nextpc;
                                     end
-                                    `inst_LOADSP : begin
+                                    `inst_LOADSP : begin // decode loadsp
                                         spstateadrdata <= `offset_sp_source;
                                         decodedinst <= `exe_loadsp;
                                         spstate <= `dec_sp;                                        
                                         pc <= nextpc;
                                     end
-                                    `inst_EMULATE : begin
+                                    `inst_EMULATE : begin // decode emulate
                                         case(opcodein[4:0])
                                             `inst_LOADH : begin
                                                 pc <= nextpc;
@@ -349,69 +348,69 @@ module decode(
                                     end
                                     default : begin
                                         pc <= nextpc;
-                                        if(opcodein[4] == `inst_ADDSP)begin
+                                        if(opcodein[4] == `inst_ADDSP)begin // decode addsp
                                             spstateadrdata <= `offset_sp_source;    
                                             spstate <= `stay_sp;
                                             decodedinst <= `exe_addsp;
                                         end
                                         else begin
                                             case(opcodein[3:0])
-                                                `inst_POPPC : begin
+                                                `inst_POPPC : begin // decode poppc
                                                     spstateadrdata <= `inc_sp_source;
                                                     spstate <= `inc_sp;
                                                     decodedinst <= `exe_poppc;    
                                                 end
-                                                `inst_LOAD : begin
+                                                `inst_LOAD : begin // decode load
                                                     spstateadrdata <= `stay_sp_source;
                                                     spstate <= `stay_sp;
                                                     decodedinst <= `exe_load;                                                    
                                                 end
-                                                `inst_STORE : begin
-                                                    spstateadrdata <= `inc_sp_source;
-                                                    spstate <= `inc_sp;
+                                                `inst_STORE : begin // decode store
+                                                    spstateadrdata <= `inc_sp_source; // add sp+8 for memory address 2 times it wil read the original sp + 8 and sp +12 
+                                                    spstate <= `inc_sp; // add sp+4 to sp 2 times it will give sp + 4
                                                     decodedinst <= `exe_store;    
                                                 end
-                                                `inst_PUSHSP : begin
+                                                `inst_PUSHSP : begin // decode pushsp
                                                     spstateadrdata <= `stay_sp_source;
                                                     spstate <= `dec_sp;
                                                     decodedinst <= `exe_pushsp;                                                        
                                                 end
-                                                `inst_POPSP : begin
+                                                `inst_POPSP : begin // decode popsp
                                                     spstateadrdata <= `tos_sp_source;
                                                     spstate <= `tos_sp;
                                                     decodedinst <= `exe_popsp;
                                                 end 
-                                                `inst_ADD : begin
+                                                `inst_ADD : begin // decode add
                                                     spstateadrdata <= `inc_sp_source;
                                                     spstate <= `inc_sp;
                                                     decodedinst <= `exe_add;
                                                 end
-                                                `inst_AND : begin
+                                                `inst_AND : begin // decode and
                                                     spstateadrdata <= `inc_sp_source;
                                                     spstate <= `inc_sp;
                                                     decodedinst <= `exe_and;
                                                 end
-                                                `inst_OR : begin
+                                                `inst_OR : begin // decode or
                                                     spstateadrdata <= `inc_sp_source;
                                                     spstate <= `inc_sp;
                                                     decodedinst <= `exe_or;
                                                 end
-                                                `inst_NOT : begin
+                                                `inst_NOT : begin // decode not
                                                     spstateadrdata <= `stay_sp_source;
                                                     spstate <= `stay_sp;
                                                     decodedinst <= `exe_not;
                                                 end
-                                                `inst_FLIP : begin
+                                                `inst_FLIP : begin // decode flip
                                                     spstateadrdata <= `stay_sp_source;
                                                     spstate <= `stay_sp;
                                                     decodedinst <= `exe_flip;
                                                 end
-                                                `inst_NOP : begin
+                                                `inst_NOP : begin // decode not
                                                     spstateadrdata <= `stay_sp_source;
                                                     spstate <= `stay_sp;
                                                     decodedinst <= `exe_nop;
                                                 end
-                                                `inst_POPINT : begin
+                                                `inst_POPINT : begin // decode popint if not enabled it is the same as poppc
                                                     spstateadrdata <= `inc_sp_source;
                                                     spstate <= `inc_sp;
                                                     decodedinst <= `exe_poppc;
@@ -420,7 +419,7 @@ module decode(
                                                     `endif 
                                                 end
 
-                                                default : begin//`inst_BREAK : begin
+                                                default : begin//`inst_BREAK : begin 
                                                 //    pc <= pc;
                                                     decodedinst <= `exe_nop;
                                                     spstate <= `stay_sp;
