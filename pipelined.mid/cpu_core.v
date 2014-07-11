@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
-// Engineer: 
+// Engineer: Kurucz Tam?s
 // 
 // Create Date: 06/17/2014 12:00:40 PM
 // Design Name: 
