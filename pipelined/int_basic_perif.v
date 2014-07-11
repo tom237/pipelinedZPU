@@ -2,7 +2,7 @@
 `include "zpupkg.v"
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
-// Engineer: 
+// Engineer: Kurucz Tam?s
 // 
 // Create Date: 04/20/2014 10:39:34 AM
 // Design Name: 
@@ -186,12 +186,12 @@ module int_basic_perif(
                         intinlow <= intinlowreg;
                     `endif
                 end
-                `ifdef enable_POPINT
+                `ifdef enable_POPINT //if enable POPINT instruction it will wait for 1 cycle long ack
                     `ifdef enable_priority_int
                         `ifdef enable_vectored_int
-                            if(intnumbernotreaded == 0) begin
+                            if(intnumbernotreaded == 0) begin // if vectored interrupt enabled it will get next interrupt after read the number of interrupt
                         `endif
-                                if((intinhighreg == 0) && (intinlowreg == 0) && (intreq == 0)) begin
+                                if((intinhighreg == 0) && (intinlowreg == 0) && (intreq == 0)) begin // low priority interrupt service
                                     for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_l
                                         if((interuptsaray[i] == 1) && (intpriority[i] == 1))begin
                                             intreq <= 1;
@@ -204,12 +204,12 @@ module int_basic_perif(
                                         end
                                     end
                                 end
-                                if((intinhighreg == 0) && (intreq == 0)) begin
+                                if((intinhighreg == 0) && (intreq == 0)) begin // high priority interrupt service
                                     for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_h
                                         if((interuptsaray[i] == 1) && (intpriority[i] == 0))begin
                                             intreq <= 1;
                                             intinhighreg <= 1;
-                                            if(intinlowreg == 0)begin
+                                            if(intinlowreg == 0)begin // if get low and highth interrupt at same time it have to disable low and start to sourvice highth
                                                 intinlowreg <= 0;
                                             end
                                             `ifdef enable_vectored_int
@@ -224,7 +224,7 @@ module int_basic_perif(
                             end
                         `endif
                         
-                        if(exitint == 1)begin
+                        if(exitint == 1)begin // exit interrupt it will clear high or low servic fleg
                             if(intinhigh == 1)begin
                                 intinhighreg <= 0;
                                 intinhigh <= 0;
@@ -236,10 +236,10 @@ module int_basic_perif(
                         end
                     `else
                         `ifdef enable_vectored_int
-                            if(intnumbernotreaded == 0) begin
+                            if(intnumbernotreaded == 0) begin // if vectored interrupt enabled it will get next interrupt after read the number of interrupt
                         `endif
                                 if((intinhighreg == 0) && (intreq == 0)) begin
-                                    for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_nop
+                                    for(i=0;i<=interrupt_number+2;i=i+1)begin : interrupt_finder_nop //service 1 priority level
                                         if((interuptsaray[i] == 1) && (intpriority[i] == 0))begin
                                             intreq <= 1;
                                             intinhighreg <= 1;
@@ -254,18 +254,18 @@ module int_basic_perif(
                         `ifdef enable_vectored_int
                             end
                         `endif
-                        if(exitint == 1)begin
+                        if(exitint == 1)begin //if exit interrupt it will clear service  fleg 
                             intinhighreg <= 0;
                             intinhigh <= 0;
                         end
                     `endif    
                 `else
-                    if((irq_ack == 0) && (intreq == 0))begin
+                    if((irq_ack == 0) && (intreq == 0))begin // start souvice if no interrupt in progress
                         irqcoming <= 0;
                         `ifdef enable_vectored_int
-                            if(intnumbernotreaded == 0) begin
+                            if(intnumbernotreaded == 0) begin // if vectored interrupt enabled it will get next interrupt after read the number of interrupt
                         `endif
-                                for(i=0;i<=interrupt_number+2;i=i+1)begin  : interrupt_finder_o
+                                for(i=0;i<=interrupt_number+2;i=i+1)begin  : interrupt_finder_o // start souvice interrupt
                                     if((interuptsaray[i] == 1) && (intinhigh == 0))begin
                                         itstate <= i;
                                         irqcoming <= 1;                                        
@@ -287,7 +287,7 @@ module int_basic_perif(
             `endif
             //itc end
             //systimer;            
-            `ifdef enable_sys_timer
+            `ifdef enable_sys_timer //it is a 32 bit down count system timer
                 if(systimervalue == 0)begin
                     systimervalue <= systimermax; 
                     systimerintfleg <= 1;
@@ -298,7 +298,7 @@ module int_basic_perif(
             `endif
             //systimer end;
             //uart
-            `ifdef enable_uart
+            `ifdef enable_uart // uart flegs setings
                 txdatblocking = ((transmitint == 1) || (starttx == 1)) ? 1'b1 : 1'b0;        
                 if(transmitint == 1)begin
                     uartintfleg[`uarttxintf] <= 1;
@@ -308,8 +308,8 @@ module int_basic_perif(
                 end            
             `endif
             //uart end
-            //gpio
-            `ifdef enable_gpio
+            //gpio 
+            `ifdef enable_gpio // gpio with fifo to protect from metastability
                 gpiodirfifo <= gpioddr;
                 gpiodir <= gpiodirfifo;
                 gpioinfifoin <= gpioin;
@@ -324,7 +324,7 @@ module int_basic_perif(
                 end
             `endif
             //gpio end
-            //64 bit counter
+            //64 bit up counter
             `ifdef enable_64b_timer
                 counter <= counter + 1;
             `endif

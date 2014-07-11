@@ -78,7 +78,7 @@ module wb_shared_bus(
     reg[1:0] outstate;
     wire[1:0] outport;
     
-    assign outport = (wb_adr_cpu[31:pc_bit_size] == 0) ? 2'h0 : //te mux controler for wb slave
+    assign outport = (wb_adr_cpu[31:pc_bit_size] == 0) ? 2'h0 : //the mux controler for wb slave
                       (wb_adr_cpu[31:interupt_ctrl_adr_size] == interupt_ctrl_adr) ? 2'h1 :
                       2'h2;    
 
