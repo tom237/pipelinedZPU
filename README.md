@@ -39,7 +39,6 @@ zpuromgen input_file_name.bin output_file_name.v ram size
  
 	TODO list:
 		-optimalisazion for size
-		-increase amount of comments
 		-debug core
 		-SRAM ctrl and caches
 		-write dokumentation
