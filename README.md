@@ -38,7 +38,6 @@ zpuromgen is generate a verilog file from .bin for program memory
 zpuromgen input_file_name.bin output_file_name.v ram size
  
 	TODO list:
-		-some test with trace core and original zpu
 		-optimalisazion for size
 		-debug core
 		-SRAM ctrl and caches
