@@ -42,4 +42,5 @@ zpuromgen input_file_name.bin output_file_name.v ram size
 		-optimalisazion for size
 		-debug core
 		-SRAM ctrl and caches
-		-write dokumentation
+		-work on documentation
+		-write a header for core
