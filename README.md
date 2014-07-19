@@ -42,4 +42,4 @@ zpuromgen input_file_name.bin output_file_name.v ram size
 		-debug core
 		-SRAM ctrl and caches
 		-work on documentation
-		-write a header for core
+		-comment and test a header for core

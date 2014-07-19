@@ -33,6 +33,21 @@ int __attribute__ ((weak)) inbyte()
 	}
 }
 
+/*
+ * Wait indefinitely for input byte non blocking
+ */
+
+
+int __attribute__ ((weak)) inbyte_noblock()  
+{
+	int val;
+	val=UART[1];
+	if ((val&0x100)!=0)
+	{
+		return val&0xff;
+	}
+	return -1;
+}
 
 
 /* 
